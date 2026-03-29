@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Get Things Done</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --accent: #6ee7b7;
+    --accent2: #f472b6;
+    --text: #f0f0f5;
+    --muted: #6b6b80;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; overflow-x:hidden; }
+
+  /* NAV */
+  nav { display:flex; justify-content:space-between; align-items:center; padding:1.5rem 5%; position:fixed; width:100%; top:0; z-index:100; backdrop-filter:blur(20px); border-bottom:1px solid var(--border); }
+  .logo { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:var(--accent); }
+  .nav-links { display:flex; gap:2rem; align-items:center; }
+  .nav-links a { color:var(--muted); text-decoration:none; font-size:0.9rem; transition:color 0.3s; }
+  .nav-links a:hover { color:var(--text); }
+  .btn { padding:0.6rem 1.5rem; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.9rem; cursor:pointer; transition:all 0.3s; text-decoration:none; }
+  .btn-outline { border:1px solid var(--accent); color:var(--accent); background:transparent; }
+  .btn-outline:hover { background:var(--accent); color:var(--bg); }
+  .btn-primary { background:var(--accent); color:var(--bg); border:none; font-weight:600; }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(110,231,183,0.3); }
+
+  /* HERO */
+  .hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:8rem 5% 4rem; position:relative; overflow:hidden; }
+  .hero::before { content:''; position:absolute; width:600px; height:600px; background:radial-gradient(circle, rgba(110,231,183,0.08) 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+  .badge { display:inline-flex; align-items:center; gap:0.5rem; background:rgba(110,231,183,0.1); border:1px solid rgba(110,231,183,0.3); color:var(--accent); padding:0.4rem 1rem; border-radius:50px; font-size:0.8rem; margin-bottom:2rem; animation:fadeDown 0.6s ease both; }
+  .hero h1 { font-family:'Syne',sans-serif; font-size:clamp(3rem,8vw,6rem); font-weight:800; line-height:1.05; margin-bottom:1.5rem; animation:fadeUp 0.8s ease 0.2s both; }
+  .hero h1 span { color:var(--accent); }
+  .hero p { color:var(--muted); font-size:1.1rem; max-width:500px; margin-bottom:3rem; line-height:1.7; animation:fadeUp 0.8s ease 0.4s both; }
+  .hero-btns { display:flex; gap:1rem; animation:fadeUp 0.8s ease 0.6s both; }
+  .hero-btns .btn { padding:0.9rem 2rem; font-size:1rem; }
+
+  /* STATS */
+  .stats { display:flex; justify-content:center; gap:4rem; padding:3rem 5%; border-top:1px solid var(--border); border-bottom:1px solid var(--border); animation:fadeUp 0.8s ease 0.8s both; }
+  .stat h3 { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; color:var(--accent); }
+  .stat p { color:var(--muted); font-size:0.85rem; }
+
+  /* FEATURES */
+  .features { padding:6rem 5%; }
+  .section-title { text-align:center; margin-bottom:4rem; }
+  .section-title h2 { font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; margin-bottom:0.5rem; }
+  .section-title p { color:var(--muted); }
+  .features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; max-width:1100px; margin:0 auto; }
+  .feature-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; transition:all 0.3s; }
+  .feature-card:hover { border-color:var(--accent); transform:translateY(-4px); }
+  .feature-icon { width:48px; height:48px; background:rgba(110,231,183,0.1); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1rem; }
+  .feature-card h3 { font-family:'Syne',sans-serif; font-weight:700; margin-bottom:0.5rem; }
+  .feature-card p { color:var(--muted); font-size:0.9rem; line-height:1.6; }
+
+  /* HOW IT WORKS */
+  .how { padding:6rem 5%; background:var(--card); }
+  .steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:2rem; max-width:900px; margin:0 auto; }
+  .step { text-align:center; padding:2rem; }
+  .step-num { width:56px; height:56px; background:var(--accent); color:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:1.2rem; margin:0 auto 1rem; }
+  .step h3 { font-family:'Syne',sans-serif; font-weight:700; margin-bottom:0.5rem; }
+  .step p { color:var(--muted); font-size:0.9rem; }
+
+  /* CTA */
+  .cta { padding:8rem 5%; text-align:center; }
+  .cta h2 { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; margin-bottom:1rem; }
+  .cta p { color:var(--muted); margin-bottom:2rem; }
+
+  /* FOOTER */
+  footer { padding:2rem 5%; border-top:1px solid var(--border); text-align:center; color:var(--muted); font-size:0.85rem; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* FLOATING SHAPES */
+  .shape { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; }
+  .shape1 { width:300px; height:300px; background:rgba(110,231,183,0.05); top:20%; left:10%; }
+  .shape2 { width:200px; height:200px; background:rgba(244,114,182,0.05); top:60%; right:10%; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">✅ TaskFlow</div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="login.html" class="btn btn-outline">Login</a>
+    <a href="register.html" class="btn btn-primary">Get Started</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="shape shape1"></div>
+  <div class="shape shape2"></div>
+  <div class="badge">🚀 Now hosted on Google Cloud Platform</div>
+  <h1>Manage Tasks.<br/><span>Stay Focused.</span></h1>
+  <p>TaskFlow helps you organize your work, set priorities, and crush your goals — one task at a time.</p>
+  <div class="hero-btns">
+    <a href="register.html" class="btn btn-primary">Start for Free</a>
+    <a href="login.html" class="btn btn-outline">Sign In</a>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><h3>500+</h3><p>Active Users</p></div>
+  <div class="stat"><h3>10K+</h3><p>Tasks Completed</p></div>
+  <div class="stat"><h3>99%</h3><p>Uptime on GCP</p></div>
+  <div class="stat"><h3>5★</h3><p>User Rating</p></div>
+</div>
+
+<section class="features" id="features">
+  <div class="section-title">
+    <h2>Everything you need</h2>
+    <p>Powerful features to keep you productive</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>Smart Task Management</h3>
+      <p>Create, edit, and organize tasks with ease. Set priorities and never miss a deadline.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Priority Levels</h3>
+      <p>Mark tasks as High, Medium, or Low priority. Focus on what matters most.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📅</div>
+      <h3>Due Date Tracking</h3>
+      <p>Set due dates and get visual alerts for overdue tasks. Stay on schedule always.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Progress Dashboard</h3>
+      <p>Visual stats showing completed, pending, and overdue tasks at a glance.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Search & Filter</h3>
+      <p>Instantly find any task. Filter by status, priority, or category.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">☁️</div>
+      <h3>Cloud Hosted</h3>
+      <p>Deployed on Google Cloud Platform. Access your tasks from anywhere, anytime.</p>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="section-title">
+    <h2>How It Works</h2>
+    <p>3 simple steps to boost your productivity</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Create Account</h3>
+      <p>Sign up in seconds. No credit card required.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Add Your Tasks</h3>
+      <p>Create tasks with priorities, due dates and categories.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Get Things Done</h3>
+      <p>Track progress and complete tasks one by one.</p>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Ready to be productive?</h2>
+  <p>Join hundreds of users already using TaskFlow</p>
+  <a href="register.html" class="btn btn-primary" style="padding:1rem 2.5rem;font-size:1.1rem;">Get Started Free →</a>
+</section>
+
+<footer>
+  <p>© 2026 TaskFlow — Built with ❤️ | Hosted on Google Cloud Platform</p>
+</footer>
+
+</body>
+</html>

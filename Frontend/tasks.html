@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — My Tasks</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --border:#1e1e2e; --accent:#6ee7b7; --accent2:#f472b6; --accent3:#818cf8; --text:#f0f0f5; --muted:#6b6b80; --sidebar:180px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; }
+  .sidebar { width:var(--sidebar); background:var(--card); border-right:1px solid var(--border); padding:1.5rem 1rem; display:flex; flex-direction:column; position:fixed; height:100vh; }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; color:var(--accent); font-size:1.2rem; margin-bottom:2.5rem; padding:0 0.5rem; }
+  .nav-item { display:flex; align-items:center; gap:0.7rem; padding:0.7rem 0.8rem; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.9rem; transition:all 0.2s; margin-bottom:0.3rem; cursor:pointer; }
+  .nav-item:hover, .nav-item.active { background:rgba(110,231,183,0.1); color:var(--accent); }
+  .nav-item span { font-size:1.1rem; }
+  .sidebar-bottom { margin-top:auto; }
+  .user-info { display:flex; align-items:center; gap:0.7rem; padding:0.7rem; border-radius:10px; background:rgba(255,255,255,0.03); }
+  .avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; color:var(--bg); }
+  .user-name { font-size:0.8rem; font-weight:500; }
+  .main { margin-left:var(--sidebar); flex:1; padding:2rem; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+  .topbar h1 { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; }
+  .btn-add { background:var(--accent); color:var(--bg); border:none; padding:0.7rem 1.4rem; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; cursor:pointer; font-size:0.9rem; transition:all 0.3s; }
+  .btn-add:hover { transform:translateY(-2px); }
+
+  /* FILTERS */
+  .filters { display:flex; gap:0.8rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .filter-btn { padding:0.5rem 1.2rem; border-radius:50px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; font-family:'DM Sans',sans-serif; font-size:0.85rem; transition:all 0.2s; }
+  .filter-btn.active, .filter-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(110,231,183,0.1); }
+  .search-bar { flex:1; max-width:300px; }
+  .search-bar input { width:100%; background:var(--card); border:1px solid var(--border); color:var(--text); padding:0.6rem 1rem; border-radius:50px; font-family:'DM Sans',sans-serif; font-size:0.85rem; outline:none; }
+  .search-bar input:focus { border-color:var(--accent); }
+
+  /* TASKS */
+  .task-list { display:flex; flex-direction:column; gap:0.7rem; }
+  .task-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem 1.5rem; display:flex; align-items:center; gap:1rem; transition:all 0.2s; animation:fadeUp 0.3s ease; }
+  .task-item:hover { border-color:rgba(110,231,183,0.3); }
+  .task-check { width:22px; height:22px; border-radius:50%; border:2px solid var(--border); cursor:pointer; transition:all 0.2s; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .task-check.done { background:var(--accent); border-color:var(--accent); }
+  .task-check.done::after { content:'✓'; color:var(--bg); font-size:0.75rem; font-weight:700; }
+  .task-info { flex:1; }
+  .task-title { font-size:0.95rem; font-weight:500; margin-bottom:0.4rem; }
+  .task-title.done { text-decoration:line-through; color:var(--muted); }
+  .task-desc { color:var(--muted); font-size:0.8rem; margin-bottom:0.4rem; }
+  .task-meta { display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .tag { padding:0.2rem 0.7rem; border-radius:20px; font-size:0.75rem; }
+  .tag.high { background:rgba(248,113,113,0.15); color:#f87171; }
+  .tag.medium { background:rgba(251,146,60,0.15); color:#fb923c; }
+  .tag.low { background:rgba(110,231,183,0.15); color:var(--accent); }
+  .tag.date { background:rgba(107,107,128,0.2); color:var(--muted); }
+  .tag.cat { background:rgba(129,140,248,0.15); color:var(--accent3); }
+  .tag.overdue { background:rgba(248,113,113,0.2); color:#f87171; }
+  .task-actions { display:flex; gap:0.5rem; }
+  .icon-btn { background:none; border:none; color:var(--muted); cursor:pointer; padding:0.4rem; border-radius:8px; transition:all 0.2s; font-size:1rem; }
+  .icon-btn:hover { color:var(--text); background:rgba(255,255,255,0.05); }
+  .empty-state { text-align:center; padding:4rem; color:var(--muted); }
+  .empty-state .emoji { font-size:3.5rem; margin-bottom:1rem; }
+  .empty-state p { font-size:1rem; }
+
+  /* EDIT MODAL */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:1000; display:none; align-items:center; justify-content:center; }
+  .modal-overlay.show { display:flex; }
+  .modal { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2rem; width:100%; max-width:480px; animation:fadeUp 0.3s ease; }
+  .modal h3 { font-family:'Syne',sans-serif; font-size:1.2rem; font-weight:700; margin-bottom:1.5rem; }
+  .form-group { margin-bottom:1rem; }
+  label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
+  input, textarea, select { width:100%; background:#0a0a0f; border:1px solid var(--border); color:var(--text); padding:0.8rem 1rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border 0.3s; }
+  input:focus, textarea:focus, select:focus { border-color:var(--accent); }
+  select option { background:var(--card); }
+  textarea { resize:none; height:80px; }
+  .modal-btns { display:flex; gap:0.8rem; margin-top:1.5rem; }
+  .btn-cancel { flex:1; padding:0.8rem; background:transparent; border:1px solid var(--border); color:var(--muted); border-radius:10px; cursor:pointer; }
+  .btn-save { flex:1; padding:0.8rem; background:var(--accent); color:var(--bg); border:none; border-radius:10px; cursor:pointer; font-family:'Syne',sans-serif; font-weight:700; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">✅ TaskFlow</div>
+  <a class="nav-item" href="dashboard.html"><span>📊</span> Dashboard</a>
+  <a class="nav-item active" href="tasks.html"><span>📋</span> My Tasks</a>
+  <a class="nav-item" href="add-task.html"><span>➕</span> Add Task</a>
+  <a class="nav-item" href="profile.html"><span>👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="avatar" id="avatarLetter">U</div>
+      <div class="user-name" id="sidebarName">User</div>
+    </div>
+    <a class="nav-item" onclick="logout()" style="margin-top:0.5rem"><span>🚪</span> Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><h1>My Tasks 📋</h1></div>
+    <button class="btn-add" onclick="openModal()">+ New Task</button>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+    <button class="filter-btn" onclick="setFilter('done',this)">Completed</button>
+    <button class="filter-btn" onclick="setFilter('high',this)">🔴 High</button>
+    <button class="filter-btn" onclick="setFilter('medium',this)">🟠 Medium</button>
+    <button class="filter-btn" onclick="setFilter('low',this)">🟢 Low</button>
+    <div class="search-bar">
+      <input type="text" placeholder="🔍 Search tasks..." oninput="searchTasks(this.value)"/>
+    </div>
+  </div>
+
+  <div class="task-list" id="taskList"></div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">✏️ Edit Task</h3>
+    <div class="form-group">
+      <label>Task Title *</label>
+      <input type="text" id="mTitle" placeholder="What needs to be done?"/>
+    </div>
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="mDesc" placeholder="Add details..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="mPriority">
+          <option value="high">🔴 High</option>
+          <option value="medium">🟠 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="mDate"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="mCategory">
+        <option value="Work">💼 Work</option>
+        <option value="Personal">🏠 Personal</option>
+        <option value="Study">📚 Study</option>
+        <option value="Health">💪 Health</option>
+        <option value="Other">📌 Other</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" onclick="saveTask()">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const user = JSON.parse(localStorage.getItem('taskflow_user') || 'null');
+if (!user) window.location.href = 'login.html';
+else {
+  document.getElementById('sidebarName').textContent = user.name?.split(' ')[0] || 'User';
+  document.getElementById('avatarLetter').textContent = (user.name || 'U')[0].toUpperCase();
+}
+
+let currentFilter = 'all';
+let searchQuery = '';
+let editIndex = -1;
+
+function getTasks() { return JSON.parse(localStorage.getItem('taskflow_tasks') || '[]'); }
+function saveTasks(t) { localStorage.setItem('taskflow_tasks', JSON.stringify(t)); }
+
+function isOverdue(dateStr) {
+  if (!dateStr) return false;
+  return new Date(dateStr) < new Date() && dateStr;
+}
+
+function renderTasks() {
+  let tasks = getTasks();
+  if (currentFilter === 'pending') tasks = tasks.filter(t => !t.done);
+  else if (currentFilter === 'done') tasks = tasks.filter(t => t.done);
+  else if (currentFilter === 'high') tasks = tasks.filter(t => t.priority === 'high');
+  else if (currentFilter === 'medium') tasks = tasks.filter(t => t.priority === 'medium');
+  else if (currentFilter === 'low') tasks = tasks.filter(t => t.priority === 'low');
+  if (searchQuery) tasks = tasks.filter(t => t.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const allTasks = getTasks();
+  const list = document.getElementById('taskList');
+  if (!tasks.length) {
+    list.innerHTML = `<div class="empty-state"><div class="emoji">🎉</div><p>No tasks found!</p></div>`;
+    return;
+  }
+  list.innerHTML = tasks.map(t => {
+    const i = allTasks.findIndex(x => x.createdAt === t.createdAt);
+    const overdue = !t.done && isOverdue(t.date);
+    return `
+    <div class="task-item">
+      <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${i})"></div>
+      <div class="task-info">
+        <div class="task-title ${t.done?'done':''}">${t.title}</div>
+        ${t.desc ? `<div class="task-desc">${t.desc}</div>` : ''}
+        <div class="task-meta">
+          <span class="tag ${t.priority}">${t.priority}</span>
+          ${t.category ? `<span class="tag cat">${t.category}</span>` : ''}
+          ${t.date ? `<span class="tag ${overdue?'overdue':'date'}">📅 ${t.date}${overdue?' ⚠️':''}</span>` : ''}
+        </div>
+      </div>
+      <div class="task-actions">
+        <button class="icon-btn" onclick="editTask(${i})">✏️</button>
+        <button class="icon-btn" onclick="deleteTask(${i})">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleTask(i) {
+  const tasks = getTasks(); tasks[i].done = !tasks[i].done;
+  saveTasks(tasks); renderTasks();
+}
+
+function deleteTask(i) {
+  if (!confirm('Delete this task?')) return;
+  const tasks = getTasks(); tasks.splice(i,1);
+  saveTasks(tasks); renderTasks();
+}
+
+function editTask(i) {
+  editIndex = i;
+  const t = getTasks()[i];
+  document.getElementById('modalTitle').textContent = '✏️ Edit Task';
+  document.getElementById('mTitle').value = t.title;
+  document.getElementById('mDesc').value = t.desc || '';
+  document.getElementById('mPriority').value = t.priority;
+  document.getElementById('mDate').value = t.date || '';
+  document.getElementById('mCategory').value = t.category || 'Work';
+  openModal();
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTasks();
+}
+
+function searchTasks(q) { searchQuery = q; renderTasks(); }
+function openModal() { editIndex = -1; document.getElementById('modalTitle').textContent = '➕ New Task'; document.getElementById('modalOverlay').classList.add('show'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); editIndex = -1; }
+
+function saveTask() {
+  const title = document.getElementById('mTitle').value.trim();
+  if (!title) return alert('Please enter a task title');
+  const tasks = getTasks();
+  const task = {
+    title, desc: document.getElementById('mDesc').value,
+    priority: document.getElementById('mPriority').value,
+    date: document.getElementById('mDate').value,
+    category: document.getElementById('mCategory').value,
+    done: false, createdAt: new Date().toISOString()
+  };
+  if (editIndex >= 0) { task.done = tasks[editIndex].done; tasks[editIndex] = task; }
+  else tasks.push(task);
+  saveTasks(tasks); closeModal(); renderTasks();
+  document.getElementById('mTitle').value = ''; document.getElementById('mDesc').value = '';
+}
+
+function logout() { localStorage.removeItem('taskflow_user'); window.location.href = 'login.html'; }
+renderTasks();
+</script>
+</body>
+</html>

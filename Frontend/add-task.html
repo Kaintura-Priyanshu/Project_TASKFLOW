@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Add Task</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --border:#1e1e2e; --accent:#6ee7b7; --text:#f0f0f5; --muted:#6b6b80; --sidebar:180px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; }
+  .sidebar { width:var(--sidebar); background:var(--card); border-right:1px solid var(--border); padding:1.5rem 1rem; display:flex; flex-direction:column; position:fixed; height:100vh; }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; color:var(--accent); font-size:1.2rem; margin-bottom:2.5rem; padding:0 0.5rem; }
+  .nav-item { display:flex; align-items:center; gap:0.7rem; padding:0.7rem 0.8rem; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.9rem; transition:all 0.2s; margin-bottom:0.3rem; cursor:pointer; }
+  .nav-item:hover, .nav-item.active { background:rgba(110,231,183,0.1); color:var(--accent); }
+  .nav-item span { font-size:1.1rem; }
+  .sidebar-bottom { margin-top:auto; }
+  .user-info { display:flex; align-items:center; gap:0.7rem; padding:0.7rem; border-radius:10px; background:rgba(255,255,255,0.03); }
+  .avatar { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; color:var(--bg); }
+  .user-name { font-size:0.8rem; }
+  .main { margin-left:var(--sidebar); flex:1; padding:2rem; display:flex; flex-direction:column; align-items:center; }
+  .page-title { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:2rem; width:100%; max-width:600px; }
+  .form-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; width:100%; max-width:600px; }
+  .form-group { margin-bottom:1.4rem; }
+  label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.5rem; font-weight:500; }
+  input, textarea, select { width:100%; background:#0a0a0f; border:1px solid var(--border); color:var(--text); padding:0.9rem 1rem; border-radius:12px; font-family:'DM Sans',sans-serif; font-size:0.95rem; outline:none; transition:border 0.3s; }
+  input:focus, textarea:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(110,231,183,0.1); }
+  input::placeholder, textarea::placeholder { color:var(--muted); }
+  textarea { resize:vertical; min-height:100px; }
+  select option { background:var(--card); }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+  /* PRIORITY SELECTOR */
+  .priority-group { display:grid; grid-template-columns:repeat(3,1fr); gap:0.8rem; }
+  .priority-option { border:2px solid var(--border); border-radius:12px; padding:1rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+  .priority-option:hover { border-color:var(--muted); }
+  .priority-option.selected-high { border-color:#f87171; background:rgba(248,113,113,0.1); }
+  .priority-option.selected-medium { border-color:#fb923c; background:rgba(251,146,60,0.1); }
+  .priority-option.selected-low { border-color:var(--accent); background:rgba(110,231,183,0.1); }
+  .priority-option .p-icon { font-size:1.5rem; margin-bottom:0.3rem; }
+  .priority-option .p-label { font-size:0.8rem; color:var(--muted); }
+
+  /* CATEGORY */
+  .category-group { display:flex; gap:0.6rem; flex-wrap:wrap; }
+  .cat-option { padding:0.5rem 1rem; border:1px solid var(--border); border-radius:50px; cursor:pointer; font-size:0.85rem; color:var(--muted); transition:all 0.2s; }
+  .cat-option:hover { border-color:var(--accent); color:var(--accent); }
+  .cat-option.selected { border-color:var(--accent); background:rgba(110,231,183,0.1); color:var(--accent); }
+
+  .btn-submit { width:100%; padding:1rem; background:var(--accent); color:var(--bg); border:none; border-radius:12px; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; transition:all 0.3s; margin-top:0.5rem; }
+  .btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(110,231,183,0.3); }
+  .success-banner { background:rgba(110,231,183,0.1); border:1px solid rgba(110,231,183,0.3); color:var(--accent); padding:1rem 1.5rem; border-radius:12px; margin-bottom:1.5rem; display:none; text-align:center; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+  .form-card { animation:fadeUp 0.5s ease; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">✅ TaskFlow</div>
+  <a class="nav-item" href="dashboard.html"><span>📊</span> Dashboard</a>
+  <a class="nav-item" href="tasks.html"><span>📋</span> My Tasks</a>
+  <a class="nav-item active" href="add-task.html"><span>➕</span> Add Task</a>
+  <a class="nav-item" href="profile.html"><span>👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="avatar" id="avatarLetter">U</div>
+      <div class="user-name" id="sidebarName">User</div>
+    </div>
+    <a class="nav-item" onclick="logout()" style="margin-top:0.5rem"><span>🚪</span> Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-title">➕ Add New Task</div>
+
+  <div class="form-card">
+    <div class="success-banner" id="successBanner">✅ Task added successfully! <a href="tasks.html" style="color:var(--accent)">View all tasks →</a></div>
+
+    <div class="form-group">
+      <label>Task Title *</label>
+      <input type="text" id="title" placeholder="What needs to be done?"/>
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea id="desc" placeholder="Add more details about this task..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Priority Level *</label>
+      <div class="priority-group">
+        <div class="priority-option selected-high" id="p-high" onclick="selectPriority('high')">
+          <div class="p-icon">🔴</div>
+          <div class="p-label">High</div>
+        </div>
+        <div class="priority-option" id="p-medium" onclick="selectPriority('medium')">
+          <div class="p-icon">🟠</div>
+          <div class="p-label">Medium</div>
+        </div>
+        <div class="priority-option" id="p-low" onclick="selectPriority('low')">
+          <div class="p-icon">🟢</div>
+          <div class="p-label">Low</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Category</label>
+      <div class="category-group">
+        <div class="cat-option selected" onclick="selectCat(this,'Work')">💼 Work</div>
+        <div class="cat-option" onclick="selectCat(this,'Personal')">🏠 Personal</div>
+        <div class="cat-option" onclick="selectCat(this,'Study')">📚 Study</div>
+        <div class="cat-option" onclick="selectCat(this,'Health')">💪 Health</div>
+        <div class="cat-option" onclick="selectCat(this,'Other')">📌 Other</div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="dueDate"/>
+      </div>
+      <div class="form-group">
+        <label>Status</label>
+        <select id="status">
+          <option value="pending">⏳ Pending</option>
+          <option value="inprogress">🔄 In Progress</option>
+          <option value="done">✅ Completed</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="submitTask()">Add Task →</button>
+  </div>
+</main>
+
+<script>
+const user = JSON.parse(localStorage.getItem('taskflow_user') || 'null');
+if (!user) window.location.href = 'login.html';
+else {
+  document.getElementById('sidebarName').textContent = user.name?.split(' ')[0] || 'User';
+  document.getElementById('avatarLetter').textContent = (user.name || 'U')[0].toUpperCase();
+}
+
+let selectedPriority = 'high';
+let selectedCategory = 'Work';
+
+function selectPriority(p) {
+  selectedPriority = p;
+  ['high','medium','low'].forEach(x => {
+    const el = document.getElementById('p-'+x);
+    el.className = 'priority-option' + (x === p ? ` selected-${x}` : '');
+  });
+}
+
+function selectCat(el, cat) {
+  selectedCategory = cat;
+  document.querySelectorAll('.cat-option').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function submitTask() {
+  const title = document.getElementById('title').value.trim();
+  if (!title) { alert('Please enter a task title'); return; }
+  const tasks = JSON.parse(localStorage.getItem('taskflow_tasks') || '[]');
+  tasks.push({
+    title, desc: document.getElementById('desc').value,
+    priority: selectedPriority, category: selectedCategory,
+    date: document.getElementById('dueDate').value,
+    done: document.getElementById('status').value === 'done',
+    createdAt: new Date().toISOString()
+  });
+  localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
+  document.getElementById('title').value = '';
+  document.getElementById('desc').value = '';
+  document.getElementById('dueDate').value = '';
+  document.getElementById('successBanner').style.display = 'block';
+  setTimeout(() => document.getElementById('successBanner').style.display = 'none', 4000);
+}
+
+function logout() { localStorage.removeItem('taskflow_user'); window.location.href = 'login.html'; }
+</script>
+</body>
+</html>
