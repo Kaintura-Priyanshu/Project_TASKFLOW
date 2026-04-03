@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --border:#1e1e2e; --accent:#6ee7b7; --text:#f0f0f5; --muted:#6b6b80; --error:#f87171; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+  .bg-shapes { position:fixed; inset:0; pointer-events:none; }
+  .shape { position:absolute; border-radius:50%; filter:blur(100px); }
+  .s1 { width:400px; height:400px; background:rgba(110,231,183,0.06); top:-100px; left:-100px; }
+  .s2 { width:300px; height:300px; background:rgba(244,114,182,0.05); bottom:-100px; right:-100px; }
+  .container { width:100%; max-width:440px; animation:fadeUp 0.6s ease both; }
+  .logo { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--accent); text-align:center; margin-bottom:0.5rem; }
+  .subtitle { text-align:center; color:var(--muted); font-size:0.9rem; margin-bottom:2.5rem; }
+  .card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; }
+  .card h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:700; margin-bottom:0.3rem; }
+  .card p { color:var(--muted); font-size:0.9rem; margin-bottom:2rem; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-group { margin-bottom:1.2rem; }
+  label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
+  input { width:100%; background:#0a0a0f; border:1px solid var(--border); color:var(--text); padding:0.8rem 1rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.95rem; transition:border 0.3s; outline:none; }
+  input:focus { border-color:var(--accent); }
+  input::placeholder { color:var(--muted); }
+  .btn { width:100%; padding:0.9rem; background:var(--accent); color:#0a0a0f; border:none; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; cursor:pointer; transition:all 0.3s; }
+  .btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(110,231,183,0.3); }
+  .error-msg { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--error); padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:1rem; display:none; }
+  .success-msg { background:rgba(110,231,183,0.1); border:1px solid rgba(110,231,183,0.3); color:var(--accent); padding:0.7rem 1rem; border-radius:8px; font-size:0.85rem; margin-bottom:1rem; display:none; }
+  .link { text-align:center; font-size:0.9rem; color:var(--muted); margin-top:1.5rem; }
+  .link a { color:var(--accent); text-decoration:none; font-weight:500; }
+  .strength-bar { height:4px; border-radius:2px; background:var(--border); margin-top:0.5rem; overflow:hidden; }
+  .strength-fill { height:100%; border-radius:2px; transition:all 0.3s; width:0%; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<div class="bg-shapes"><div class="shape s1"></div><div class="shape s2"></div></div>
+
+<div class="container">
+  <div class="logo">✅ TaskFlow</div>
+  <p class="subtitle">Create your free account today</p>
+  <div class="card">
+    <h2>Get Started</h2>
+    <p>Join TaskFlow and start managing your tasks</p>
+    <div class="error-msg" id="errorMsg"></div>
+    <div class="success-msg" id="successMsg">Account created! Redirecting to login...</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="fname" placeholder="John"/>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="lname" placeholder="Doe"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="email" placeholder="you@example.com"/>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Min. 6 characters" oninput="checkStrength(this.value)"/>
+      <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+    </div>
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="confirm" placeholder="Re-enter password"/>
+    </div>
+    <button class="btn" onclick="handleRegister()">Create Account →</button>
+  </div>
+  <div class="link">Already have an account? <a href="login.html">Sign in</a></div>
+</div>
+
+<script>
+function checkStrength(val) {
+  const fill = document.getElementById('strengthFill');
+  let strength = 0;
+  if (val.length >= 6) strength++;
+  if (/[A-Z]/.test(val)) strength++;
+  if (/[0-9]/.test(val)) strength++;
+  if (/[^A-Za-z0-9]/.test(val)) strength++;
+  const colors = ['#f87171','#fb923c','#facc15','#6ee7b7'];
+  const widths = ['25%','50%','75%','100%'];
+  fill.style.width = widths[strength-1] || '0%';
+  fill.style.background = colors[strength-1] || 'transparent';
+}
+
+function handleRegister() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm').value;
+  const errorMsg = document.getElementById('errorMsg');
+  const successMsg = document.getElementById('successMsg');
+  errorMsg.style.display = 'none';
+
+  if (!fname || !lname || !email || !password || !confirm) {
+    errorMsg.textContent = 'Please fill in all fields.';
+    errorMsg.style.display = 'block'; return;
+  }
+  if (password.length < 6) {
+    errorMsg.textContent = 'Password must be at least 6 characters.';
+    errorMsg.style.display = 'block'; return;
+  }
+  if (password !== confirm) {
+    errorMsg.textContent = 'Passwords do not match.';
+    errorMsg.style.display = 'block'; return;
+  }
+
+  const users = JSON.parse(localStorage.getItem('taskflow_users') || '[]');
+  if (users.find(u => u.email === email)) {
+    errorMsg.textContent = 'Email already registered.';
+    errorMsg.style.display = 'block'; return;
+  }
+
+  users.push({ name: fname + ' ' + lname, email, password });
+  localStorage.setItem('taskflow_users', JSON.stringify(users));
+  successMsg.style.display = 'block';
+  setTimeout(() => window.location.href = 'login.html', 1500);
+}
+</script>
+</body>
+</html>
