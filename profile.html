@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TaskFlow — Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root { --bg:#0a0a0f; --card:#12121a; --border:#1e1e2e; --accent:#6ee7b7; --accent2:#f472b6; --accent3:#818cf8; --text:#f0f0f5; --muted:#6b6b80; --sidebar:180px; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; display:flex; min-height:100vh; }
+  .sidebar { width:var(--sidebar); background:var(--card); border-right:1px solid var(--border); padding:1.5rem 1rem; display:flex; flex-direction:column; position:fixed; height:100vh; }
+  .logo { font-family:'Syne',sans-serif; font-weight:800; color:var(--accent); font-size:1.2rem; margin-bottom:2.5rem; padding:0 0.5rem; }
+  .nav-item { display:flex; align-items:center; gap:0.7rem; padding:0.7rem 0.8rem; border-radius:10px; color:var(--muted); text-decoration:none; font-size:0.9rem; transition:all 0.2s; margin-bottom:0.3rem; cursor:pointer; }
+  .nav-item:hover, .nav-item.active { background:rgba(110,231,183,0.1); color:var(--accent); }
+  .nav-item span { font-size:1.1rem; }
+  .sidebar-bottom { margin-top:auto; }
+  .user-info { display:flex; align-items:center; gap:0.7rem; padding:0.7rem; border-radius:10px; background:rgba(255,255,255,0.03); }
+  .avatar-sm { width:32px; height:32px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; color:var(--bg); }
+  .user-name { font-size:0.8rem; }
+  .main { margin-left:var(--sidebar); flex:1; padding:2rem; }
+  .page-title { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; margin-bottom:2rem; }
+
+  /* PROFILE HERO */
+  .profile-hero { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:2.5rem; display:flex; align-items:center; gap:2rem; margin-bottom:2rem; position:relative; overflow:hidden; }
+  .profile-hero::before { content:''; position:absolute; top:-50px; right:-50px; width:200px; height:200px; background:radial-gradient(circle, rgba(110,231,183,0.08) 0%, transparent 70%); }
+  .avatar-lg { width:80px; height:80px; background:linear-gradient(135deg, var(--accent), #34d399); border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:2rem; color:var(--bg); flex-shrink:0; }
+  .profile-info h2 { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; }
+  .profile-info p { color:var(--muted); margin-top:0.3rem; }
+  .profile-badge { display:inline-flex; align-items:center; gap:0.4rem; background:rgba(110,231,183,0.1); border:1px solid rgba(110,231,183,0.3); color:var(--accent); padding:0.3rem 0.8rem; border-radius:50px; font-size:0.8rem; margin-top:0.8rem; }
+
+  /* STATS ROW */
+  .profile-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:2rem; }
+  .pstat { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.5rem; text-align:center; }
+  .pstat-num { font-family:'Syne',sans-serif; font-size:2rem; font-weight:800; }
+  .pstat-num.green { color:var(--accent); }
+  .pstat-num.pink { color:var(--accent2); }
+  .pstat-num.purple { color:var(--accent3); }
+  .pstat-label { color:var(--muted); font-size:0.8rem; margin-top:0.3rem; }
+
+  /* PROGRESS */
+  .progress-section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:2rem; }
+  .progress-section h3 { font-family:'Syne',sans-serif; font-weight:700; margin-bottom:1.5rem; }
+  .progress-item { margin-bottom:1rem; }
+  .progress-label { display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.5rem; }
+  .progress-label span:last-child { color:var(--muted); }
+  .progress-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:4px; transition:width 1s ease; }
+  .fill-green { background:linear-gradient(90deg, var(--accent), #34d399); }
+  .fill-pink { background:linear-gradient(90deg, var(--accent2), #ec4899); }
+  .fill-purple { background:linear-gradient(90deg, var(--accent3), #6366f1); }
+  .fill-orange { background:linear-gradient(90deg, #fb923c, #f59e0b); }
+
+  /* EDIT FORM */
+  .edit-section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; }
+  .edit-section h3 { font-family:'Syne',sans-serif; font-weight:700; margin-bottom:1.5rem; }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .form-group { margin-bottom:1rem; }
+  label { display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem; }
+  input { width:100%; background:#0a0a0f; border:1px solid var(--border); color:var(--text); padding:0.8rem 1rem; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:0.9rem; outline:none; transition:border 0.3s; }
+  input:focus { border-color:var(--accent); }
+  .btn-save { padding:0.8rem 2rem; background:var(--accent); color:var(--bg); border:none; border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; cursor:pointer; transition:all 0.3s; }
+  .btn-save:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(110,231,183,0.3); }
+  .btn-danger { padding:0.8rem 2rem; background:transparent; color:#f87171; border:1px solid rgba(248,113,113,0.3); border-radius:10px; font-family:'Syne',sans-serif; font-weight:700; cursor:pointer; transition:all 0.3s; margin-left:1rem; }
+  .btn-danger:hover { background:rgba(248,113,113,0.1); }
+  .success-msg { color:var(--accent); font-size:0.85rem; margin-top:0.5rem; display:none; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">✅ TaskFlow</div>
+  <a class="nav-item" href="dashboard.html"><span>📊</span> Dashboard</a>
+  <a class="nav-item" href="tasks.html"><span>📋</span> My Tasks</a>
+  <a class="nav-item" href="add-task.html"><span>➕</span> Add Task</a>
+  <a class="nav-item active" href="profile.html"><span>👤</span> Profile</a>
+  <div class="sidebar-bottom">
+    <div class="user-info">
+      <div class="avatar-sm" id="avatarLetter">U</div>
+      <div class="user-name" id="sidebarName">User</div>
+    </div>
+    <a class="nav-item" onclick="logout()" style="margin-top:0.5rem"><span>🚪</span> Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-title">👤 Profile</div>
+
+  <div class="profile-hero">
+    <div class="avatar-lg" id="avatarBig">U</div>
+    <div class="profile-info">
+      <h2 id="profileName">User Name</h2>
+      <p id="profileEmail">user@email.com</p>
+      <div class="profile-badge">⭐ TaskFlow Member</div>
+    </div>
+  </div>
+
+  <div class="profile-stats">
+    <div class="pstat">
+      <div class="pstat-num green" id="totalTasks">0</div>
+      <div class="pstat-label">Total Tasks</div>
+    </div>
+    <div class="pstat">
+      <div class="pstat-num purple" id="completedTasks">0</div>
+      <div class="pstat-label">Completed</div>
+    </div>
+    <div class="pstat">
+      <div class="pstat-num pink" id="pendingTasks">0</div>
+      <div class="pstat-label">Pending</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <h3>📊 Task Breakdown</h3>
+    <div class="progress-item">
+      <div class="progress-label"><span>Completed</span><span id="pCompletedLabel">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-green" id="pCompleted" style="width:0%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>High Priority</span><span id="pHighLabel">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-pink" id="pHigh" style="width:0%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>Medium Priority</span><span id="pMedLabel">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-purple" id="pMed" style="width:0%"></div></div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label"><span>Low Priority</span><span id="pLowLabel">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill fill-orange" id="pLow" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="edit-section">
+    <h3>⚙️ Edit Profile</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="editName" placeholder="Your name"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="editEmail" placeholder="your@email.com"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>New Password (leave blank to keep current)</label>
+      <input type="password" id="editPass" placeholder="New password"/>
+    </div>
+    <button class="btn-save" onclick="saveProfile()">Save Changes</button>
+    <button class="btn-danger" onclick="clearAllTasks()">Clear All Tasks</button>
+    <div class="success-msg" id="saveMsg">✅ Profile updated successfully!</div>
+  </div>
+</main>
+
+<script>
+const user = JSON.parse(localStorage.getItem('taskflow_user') || 'null');
+if (!user) window.location.href = 'login.html';
+
+function init() {
+  document.getElementById('avatarLetter').textContent = (user.name||'U')[0].toUpperCase();
+  document.getElementById('avatarBig').textContent = (user.name||'U')[0].toUpperCase();
+  document.getElementById('sidebarName').textContent = user.name?.split(' ')[0] || 'User';
+  document.getElementById('profileName').textContent = user.name || 'User';
+  document.getElementById('profileEmail').textContent = user.email || '';
+  document.getElementById('editName').value = user.name || '';
+  document.getElementById('editEmail').value = user.email || '';
+
+  const tasks = JSON.parse(localStorage.getItem('taskflow_tasks') || '[]');
+  const total = tasks.length;
+  const done = tasks.filter(t => t.done).length;
+  const pending = tasks.filter(t => !t.done).length;
+  const high = tasks.filter(t => t.priority === 'high').length;
+  const med = tasks.filter(t => t.priority === 'medium').length;
+  const low = tasks.filter(t => t.priority === 'low').length;
+
+  document.getElementById('totalTasks').textContent = total;
+  document.getElementById('completedTasks').textContent = done;
+  document.getElementById('pendingTasks').textContent = pending;
+
+  if (total > 0) {
+    const pct = v => Math.round((v/total)*100);
+    setTimeout(() => {
+      document.getElementById('pCompleted').style.width = pct(done)+'%';
+      document.getElementById('pCompletedLabel').textContent = pct(done)+'%';
+      document.getElementById('pHigh').style.width = pct(high)+'%';
+      document.getElementById('pHighLabel').textContent = pct(high)+'%';
+      document.getElementById('pMed').style.width = pct(med)+'%';
+      document.getElementById('pMedLabel').textContent = pct(med)+'%';
+      document.getElementById('pLow').style.width = pct(low)+'%';
+      document.getElementById('pLowLabel').textContent = pct(low)+'%';
+    }, 300);
+  }
+}
+
+function saveProfile() {
+  const name = document.getElementById('editName').value.trim();
+  const email = document.getElementById('editEmail').value.trim();
+  const pass = document.getElementById('editPass').value;
+  if (!name || !email) return alert('Name and email are required');
+  user.name = name; user.email = email;
+  if (pass) user.password = pass;
+  localStorage.setItem('taskflow_user', JSON.stringify(user));
+  document.getElementById('saveMsg').style.display = 'block';
+  document.getElementById('profileName').textContent = name;
+  document.getElementById('avatarBig').textContent = name[0].toUpperCase();
+  setTimeout(() => document.getElementById('saveMsg').style.display = 'none', 3000);
+}
+
+function clearAllTasks() {
+  if (!confirm('Clear ALL tasks? This cannot be undone.')) return;
+  localStorage.removeItem('taskflow_tasks');
+  init();
+}
+
+function logout() { localStorage.removeItem('taskflow_user'); window.location.href = 'login.html'; }
+init();
+</script>
+</body>
+</html>
